@@ -179,6 +179,10 @@ public class JsonReader extends AbstractBsonReader {
                 setCurrentBsonType(BsonType.INT64);
                 currentValue = token.getValue();
                 break;
+            case DECIMAL128:
+                setCurrentBsonType(BsonType.DECIMAL128);
+                currentValue = token.getValue();
+                break;
             case REGULAR_EXPRESSION:
                 setCurrentBsonType(BsonType.REGULAR_EXPRESSION);
                 currentValue = token.getValue();

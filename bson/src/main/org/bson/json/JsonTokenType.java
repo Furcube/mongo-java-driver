@@ -78,6 +78,11 @@ enum JsonTokenType {
     INT64,
 
     /**
+     * And Decimal128 token.
+     */
+    DECIMAL128,
+
+    /**
      * A regular expression token.
      */
     REGULAR_EXPRESSION,

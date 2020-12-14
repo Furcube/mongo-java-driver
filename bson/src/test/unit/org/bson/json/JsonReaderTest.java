@@ -475,6 +475,17 @@ public class JsonReaderTest {
     }
 
     @Test
+    public void testDecimal128Plain() {
+        String json = "9297327015446918708";
+        testStringAndStream(json, bsonReader -> {
+            assertEquals(BsonType.DECIMAL128, bsonReader.readBsonType());
+            assertEquals(Decimal128.parse("9297327015446918708"), bsonReader.readDecimal128());
+            assertEquals(AbstractBsonReader.State.DONE, bsonReader.getState());
+            return null;
+        });
+    }
+
+    @Test
     public void testJavaScript() {
         String json = "{ \"$code\" : \"function f() { return 1; }\" }";
         testStringAndStream(json, bsonReader -> {

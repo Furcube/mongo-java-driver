@@ -28,6 +28,7 @@ import javax.net.SocketFactory
 import javax.net.ssl.SNIHostName
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 import static com.mongodb.ClusterFixture.getPrimary
@@ -54,9 +55,27 @@ class SocketStreamHelperSpecification extends Specification {
         // If the Java 11+ extended socket options for keep alive probes are available, check those values.
         if (Arrays.stream(ExtendedSocketOptions.getDeclaredFields()).anyMatch{ f -> f.getName().equals('TCP_KEEPCOUNT') }) {
             Method getOptionMethod = Socket.getMethod('getOption', SocketOption);
-            getOptionMethod.invoke(socket, ExtendedSocketOptions.getDeclaredField('TCP_KEEPCOUNT').get(null)) == 9
-            getOptionMethod.invoke(socket, ExtendedSocketOptions.getDeclaredField('TCP_KEEPIDLE').get(null)) == 120
-            getOptionMethod.invoke(socket, ExtendedSocketOptions.getDeclaredField('TCP_KEEPINTERVAL').get(null)) == 10
+            try {
+                getOptionMethod.invoke(socket, ExtendedSocketOptions.getDeclaredField('TCP_KEEPCOUNT').get(null)) == 9
+            } catch (InvocationTargetException e) {
+                if (!(e.getCause() instanceof UnsupportedOperationException)) {
+                    throw e;
+                }
+            }
+            try {
+                getOptionMethod.invoke(socket, ExtendedSocketOptions.getDeclaredField('TCP_KEEPIDLE').get(null)) == 120
+            } catch (InvocationTargetException e) {
+                if (!(e.getCause() instanceof UnsupportedOperationException)) {
+                    throw e;
+                }
+            }
+            try {
+                getOptionMethod.invoke(socket, ExtendedSocketOptions.getDeclaredField('TCP_KEEPINTERVAL').get(null)) == 10
+            } catch (InvocationTargetException e) {
+                if (!(e.getCause() instanceof UnsupportedOperationException)) {
+                    throw e;
+                }
+            }
         }
 
         cleanup:

@@ -16,9 +16,10 @@
 
 package org.bson.json;
 
-import org.bson.BsonRegularExpression;
-
 import java.io.Reader;
+
+import org.bson.BsonRegularExpression;
+import org.bson.types.Decimal128;
 
 /**
  * Parses the string representation of a JSON object into a set of {@link JsonToken}-derived objects.
@@ -448,11 +449,16 @@ class JsonScanner {
                     if (type == JsonTokenType.DOUBLE) {
                         return new JsonToken(JsonTokenType.DOUBLE, Double.parseDouble(lexeme));
                     } else {
-                        long value = Long.parseLong(lexeme);
-                        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
-                            return new JsonToken(JsonTokenType.INT64, value);
-                        } else {
-                            return new JsonToken(JsonTokenType.INT32, (int) value);
+                        try {
+	                        final long value = Long.parseLong(lexeme);
+	                        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+		                        return new JsonToken(JsonTokenType.INT64, value);
+	                        } else {
+		                        return new JsonToken(JsonTokenType.INT32, (int) value);
+	                        }
+                        }catch (NumberFormatException ignore) {
+                            final Decimal128 value = Decimal128.parse(lexeme);
+                            return new JsonToken(JsonTokenType.DECIMAL128, value);
                         }
                     }
                 default:
